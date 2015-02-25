@@ -1,4 +1,4 @@
-﻿@{
+@{
     Layout = null;
 }
 
@@ -196,19 +196,26 @@
         $('#Button2').click(function (e) {
             e.preventDefault();
             var ids = "";
+
             if ($("#text1").val() != "" && $("#text2").val() != "" && $("#text3").val() != "" && $("#date").val() != "") {
-                $.ajax({
-                    type: "POST",
-                    url: "@Url.Action("updatecontent", "task")",
-                    contentType: "application/json; charset=utf-8",
-                    data: "{'id':'" + $('#Button2').attr('id2') + "','title':'" + $("#text1").val().replace(/'/g, "`~`~`") + "','desc':'" + $("#text2").val().replace(/'/g, "`~`~`") + "','due_date':'" + $("#date").val().replace(/'/g, "`~`~`") + "','required_hours':'" + $("#text3").val().replace(/'/g, "`~`~`") + "','priority':'" + $("#dp option:selected").val().replace(/'/g, "`~`~`") + "'}",
-                    success: function (msg) {
-                        if (msg.toString() == "added") {
-                            $('#divmsg').html('<div class="alert alert-success">Task has been updated successfully!</div>');
-                            showTable(); $('#panel-config').modal('hide');
+                if ($.isNumeric($("#text3").val())) {
+                    $.ajax({
+                        type: "POST",
+                        url: "@Url.Action("updatecontent", "task")",
+                        contentType: "application/json; charset=utf-8",
+                        data: "{'id':'" + $('#Button2').attr('id2') + "','title':'" + $("#text1").val().replace(/'/g, "`~`~`") + "','desc':'" + $("#text2").val().replace(/'/g, "`~`~`") + "','due_date':'" + $("#date").val().replace(/'/g, "`~`~`") + "','required_hours':'" + $("#text3").val().replace(/'/g, "`~`~`") + "','priority':'" + $("#dp option:selected").val().replace(/'/g, "`~`~`") + "'}",
+                        success: function (msg) {
+                            if (msg.toString() == "added") {
+                                $('#divmsg').html('<div class="alert alert-success">Task has been updated successfully!</div>');
+                                showTable(); $('#panel-config').modal('hide');
+                            }
                         }
-                    }
-                });
+                    });
+                }
+                else {
+                    $('#msgDiv').html('<div class="alert alert-danger">Only digits are allowed for required hour filed!</div>');
+                }
+
             }
             else {
                 $('#msgDiv').html('<div class="alert alert-danger">Please provide all required information!</div>');
@@ -220,9 +227,10 @@
             e.preventDefault();
             var ids = "";
             if ($("#text1").val() != "" && $("#text2").val() != "" && $("#text3").val() != "" && $("#date").val() != "") {
-                $.ajax({
-                    type: "POST",
-                    url: "@Url.Action("addcontent", "task")",
+                if ($.isNumeric($("#text3").val())) {
+                    $.ajax({
+                        type: "POST",
+                        url: "@Url.Action("addcontent", "task")",
                     contentType: "application/json; charset=utf-8",
                     data: "{'title':'" + $("#text1").val().replace(/'/g, "`~`~`") + "','desc':'" + $("#text2").val().replace(/'/g, "`~`~`") + "','due_date':'" + $("#date").val().replace(/'/g, "`~`~`") + "','required_hours':'" + $("#text3").val().replace(/'/g, "`~`~`") + "','priority':'" + $("#dp option:selected").val().replace(/'/g, "`~`~`") + "'}",
                     success: function (msg) {
@@ -238,14 +246,17 @@
 
                     }
                 });
-
-
             }
             else {
-                $('#msgDiv').html('<div class="alert alert-danger">Please provide all required information!</div>');
+                $('#msgDiv').html('<div class="alert alert-danger">Only digits are allowed for required hour filed!</div>');
             }
 
-        });
+        }
+        else {
+            $('#msgDiv').html('<div class="alert alert-danger">Please provide all required information!</div>');
+        }
+
+    });
         $("#view2").click(function () {
             var gettitles = "";
             $(".ct").each(function () {
@@ -296,40 +307,40 @@
             $.ajax({
                 type: "POST",
                 url: '@Url.Action("Getcontents", "task")',
-                contentType: "application/json; charset=utf-8",
-                data: "{}",
-                success: function (msg) {
-                    if (msg.toString() != "") {
-                        $('#TableData').html(msg.toString());
-                    }
-                    else {
-                        $('#TableData').html('<center>No record found...</center>');
-                    }
-                    $("#viewchart").hide();
-                    $("#viewtab").show();
-
-                    closeLoader();
-
-                }
-
-            });
-
-            function closeLoader() {
-                $('#DivLoading').modal('hide');
+        contentType: "application/json; charset=utf-8",
+        data: "{}",
+        success: function (msg) {
+            if (msg.toString() != "") {
+                $('#TableData').html(msg.toString());
             }
+            else {
+                $('#TableData').html('<center>No record found...</center>');
+            }
+            $("#viewchart").hide();
+            $("#viewtab").show();
 
-            $(document.body).on("click", ".tabledelete", function () {
-                var id = $(this).attr('id').replace("btnDelete-", "");
-                $('#ButtonYes').attr('DataID', id);
-                $('#confrmDialog').modal({
-                });
-            });
+            closeLoader();
 
-            $('#ButtonYes').click(function (e) {
-                e.preventDefault();
-                $.ajax({
-                    type: "POST",
-                    url: "@Url.Action("delcontent", "task")",
+        }
+
+    });
+
+    function closeLoader() {
+        $('#DivLoading').modal('hide');
+    }
+
+    $(document.body).on("click", ".tabledelete", function () {
+        var id = $(this).attr('id').replace("btnDelete-", "");
+        $('#ButtonYes').attr('DataID', id);
+        $('#confrmDialog').modal({
+        });
+    });
+
+    $('#ButtonYes').click(function (e) {
+        e.preventDefault();
+        $.ajax({
+            type: "POST",
+            url: "@Url.Action("delcontent", "task")",
                     contentType: "application/json; charset=utf-8",
                     data: "{'idd':'" + $(this).attr('dataid') + "'}",
                     success: function (msg) {
